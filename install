@@ -1,0 +1,25 @@
+#!/usr/bin/env escript
+-define(CREDENTIALSPATH, "./priv/Credentials/").
+-define(PASSWORDSPATH, "./priv/Passwords/").
+-define(DEFAULTUSER, "root").
+-define(DEFAULTLOGINPWD, "passwd1111111111").
+-define(CREDENTIALSUFFIX, "Credential").
+-define(PASSWORDSUFFIX, "Passwords").
+
+main(_)->
+    %%empty the directories of users credentials and users storages
+	{ok,Credentials} = file:list_dir(?CREDENTIALSPATH),
+    {ok,Passwords} = file:list_dir(?PASSWORDSPATH),
+    [file:delete(?CREDENTIALSPATH ++ Credential)|| Credential <- Credentials],
+    [file:delete(?PASSWORDSPATH ++ Password) || Password <-Passwords],
+    %% create default fils
+    DefaultUserCredential = ?CREDENTIALSPATH ++ ?DEFAULTUSER ++ ?CREDENTIALSUFFIX,
+    DefaultUserPasswords = ?PASSWORDSPATH ++ ?DEFAULTUSER ++ ?PASSWORDSUFFIX,
+    file:write_file(DefaultUserCredential, hashing(?DEFAULTUSER ++ ?DEFAULTLOGINPWD)),
+    {ok,Dets} = dets:open_file(default, [{file, DefaultUserPasswords},{type,set}]),
+    dets:close(Dets).
+
+hashing(String)->
+	crypto:start(),
+	<<Hash:256/big-unsigned-integer>> = crypto:hash(sha256,String),
+	integer_to_list(Hash, 16).
