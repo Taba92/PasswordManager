@@ -28,3 +28,4 @@ USAGE BUTTONS:
 
 FUTURE DEVELOPMENTS: 
     1) Translate GUI in English.
+    2) Support for windows OS.
